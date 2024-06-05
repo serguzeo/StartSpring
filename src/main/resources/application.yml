@@ -1,0 +1,27 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/SpringStart
+    username: postgres
+    password: 0018
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  thymeleaf:
+    suffix: .html
+    prefix: classpath:/templates/
+#
+#  security:
+#    oauth2:
+#      client:
+#        registration:
+#          github:
+#            clientId: Ov23ctEtoqXWBmo3PFbp
+#            clientSecret: 20cbb43ea0a025109cc63536d8da927cf96f5cd9
