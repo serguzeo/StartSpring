@@ -22,10 +22,10 @@ import java.util.stream.Collectors;
 public class CustomUserDetailService implements UserDetailsService {
     private IUserService userService;
 
-    public UserDetails loadUserByLogin(String login) throws UsernameNotFoundException {
-        UserEntity user = userService.findByUsernameOrEmail(login, login).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        return new User(user.getUsername(), user.getPassword(),mapRolesToAuthorities(user.getRoles()));
-    }
+//    public UserDetails loadUserByLogin(String login) throws UsernameNotFoundException {
+//        UserEntity user = userService.findByUsernameOrEmail(login, login).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+//        return new User(user.getUsername(), user.getPassword(),mapRolesToAuthorities(user.getRoles()));
+//    }
 
     private Collection<GrantedAuthority> mapRolesToAuthorities(List<Role> roles) {
         return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
@@ -33,7 +33,7 @@ public class CustomUserDetailService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserEntity user = userService.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        UserEntity user = userService.findByUsernameOrEmail(username, username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         return new User(user.getUsername(), user.getPassword(),mapRolesToAuthorities(user.getRoles()));
     }
 }

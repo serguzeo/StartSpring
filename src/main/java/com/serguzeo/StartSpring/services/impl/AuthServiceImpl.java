@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -24,14 +25,18 @@ public class AuthServiceImpl implements IAuthService {
 
     @Override
     public ResponseEntity<Map<String, String>> login(LoginDto loginDto) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginDto.getLogin(),
-                        loginDto.getPassword()
-                )
-        );
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginDto.getLogin(),
+                            loginDto.getPassword()
+                    )
+            );
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        return new ResponseEntity<>(Collections.singletonMap("response", "Authenticated!"), HttpStatus.OK);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            return new ResponseEntity<>(Collections.singletonMap("response", "Authenticated!"), HttpStatus.OK);
+        } catch (AuthenticationException e) {
+            return new ResponseEntity<>(Collections.singletonMap("error", "Authentication failed: " + e.getMessage()), HttpStatus.UNAUTHORIZED);
+        }
     }
 }
