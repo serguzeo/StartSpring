@@ -1,7 +1,14 @@
 package com.serguzeo.StartSpring.services.impl;
 
+import com.serguzeo.StartSpring.dto.AuthResponseDto;
 import com.serguzeo.StartSpring.dto.LoginDto;
+import com.serguzeo.StartSpring.dto.RegisterDto;
+import com.serguzeo.StartSpring.models.Role;
+import com.serguzeo.StartSpring.models.UserEntity;
+import com.serguzeo.StartSpring.security.TokenGenerator;
 import com.serguzeo.StartSpring.services.I.IAuthService;
+import com.serguzeo.StartSpring.services.I.IRoleService;
+import com.serguzeo.StartSpring.services.I.IUserService;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpStatus;
@@ -11,6 +18,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -22,9 +30,13 @@ import java.util.Map;
 public class AuthServiceImpl implements IAuthService {
 
     private final AuthenticationManager authenticationManager;
+    private final IUserService userService;
+    private final IRoleService roleService;
+    private final PasswordEncoder passwordEncoder;
+    private final TokenGenerator tokenGenerator;
 
     @Override
-    public ResponseEntity<Map<String, String>> login(LoginDto loginDto) {
+    public ResponseEntity<AuthResponseDto> login(LoginDto loginDto) {
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -32,11 +44,36 @@ public class AuthServiceImpl implements IAuthService {
                             loginDto.getPassword()
                     )
             );
-
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            return new ResponseEntity<>(Collections.singletonMap("response", "Authenticated!"), HttpStatus.OK);
+            String token = tokenGenerator.generateToken(authentication);
+            return new ResponseEntity<>(new AuthResponseDto(token), HttpStatus.OK);
         } catch (AuthenticationException e) {
-            return new ResponseEntity<>(Collections.singletonMap("error", "Authentication failed: " + e.getMessage()), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(new AuthResponseDto(e.getMessage()), HttpStatus.UNAUTHORIZED);
         }
+    }
+
+    @Override
+    public ResponseEntity<Map<String, String>> register(RegisterDto registerDto) {
+        if (userService.existsByUsername(registerDto.getUsername())) {
+            return new ResponseEntity<>(Collections.singletonMap("response", "Username is taken!"), HttpStatus.BAD_REQUEST);
+        }
+        if (userService.existsByEmail(registerDto.getEmail())) {
+            return new ResponseEntity<>(Collections.singletonMap("response", "Email is already in use!"), HttpStatus.BAD_REQUEST);
+        }
+
+        UserEntity user = new UserEntity();
+        user.setUsername(registerDto.getUsername());
+        user.setFirstName(registerDto.getFirstName());
+        user.setLastName(registerDto.getLastName());
+        user.setDateOfBirth(registerDto.getDateOfBirth());
+        user.setEmail(registerDto.getEmail());
+        user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
+
+        Role role = roleService.findByName("USER").get();
+        user.setRoles(Collections.singletonList(role));
+
+        userService.save(user);
+
+        return new ResponseEntity<>(Collections.singletonMap("response", "User registered successfully!"), HttpStatus.CREATED);
     }
 }
