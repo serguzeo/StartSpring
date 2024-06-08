@@ -5,11 +5,10 @@ import com.serguzeo.StartSpring.dto.LoginDto;
 import com.serguzeo.StartSpring.dto.RegisterDto;
 import com.serguzeo.StartSpring.models.Role;
 import com.serguzeo.StartSpring.models.UserEntity;
+import com.serguzeo.StartSpring.repositories.IRoleRepository;
 import com.serguzeo.StartSpring.repositories.IUserRepository;
 import com.serguzeo.StartSpring.security.TokenGenerator;
 import com.serguzeo.StartSpring.services.I.IAuthService;
-import com.serguzeo.StartSpring.services.I.IRoleService;
-import com.serguzeo.StartSpring.services.I.IUserService;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpStatus;
@@ -32,7 +31,7 @@ public class AuthServiceImpl implements IAuthService {
 
     private final AuthenticationManager authenticationManager;
     private final IUserRepository userRepository;
-    private final IRoleService roleService;
+    private final IRoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenGenerator tokenGenerator;
 
@@ -70,7 +69,7 @@ public class AuthServiceImpl implements IAuthService {
         user.setEmail(registerDto.getEmail());
         user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
 
-        Role role = roleService.findByName("USER").get();
+        Role role = roleRepository.findByName("USER").get();
         user.setRoles(Collections.singletonList(role));
 
         userRepository.save(user);
