@@ -49,7 +49,7 @@ public class TokenGenerator {
                     .parseSignedClaims(token);
             return true;
         } catch (Exception e) {
-            throw new AuthenticationCredentialsNotFoundException("JWT was expired or incorrect");
+            return false;
         }
     }
 }

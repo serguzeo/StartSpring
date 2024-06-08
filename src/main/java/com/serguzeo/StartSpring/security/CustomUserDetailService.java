@@ -3,6 +3,7 @@ package com.serguzeo.StartSpring.security;
 
 import com.serguzeo.StartSpring.models.Role;
 import com.serguzeo.StartSpring.models.UserEntity;
+import com.serguzeo.StartSpring.repositories.IUserRepository;
 import com.serguzeo.StartSpring.services.I.IUserService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,7 +21,7 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class CustomUserDetailService implements UserDetailsService {
-    private IUserService userService;
+    private IUserRepository userRepository;
 
     private Collection<GrantedAuthority> mapRolesToAuthorities(List<Role> roles) {
         return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
@@ -28,7 +29,7 @@ public class CustomUserDetailService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserEntity user = userService.findByUsernameOrEmail(username, username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        UserEntity user = userRepository.findByUsernameOrEmail(username, username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         return new User(user.getUsername(), user.getPassword(), mapRolesToAuthorities(user.getRoles()));
     }
 }

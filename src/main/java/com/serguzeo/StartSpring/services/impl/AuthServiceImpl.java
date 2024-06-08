@@ -5,6 +5,7 @@ import com.serguzeo.StartSpring.dto.LoginDto;
 import com.serguzeo.StartSpring.dto.RegisterDto;
 import com.serguzeo.StartSpring.models.Role;
 import com.serguzeo.StartSpring.models.UserEntity;
+import com.serguzeo.StartSpring.repositories.IUserRepository;
 import com.serguzeo.StartSpring.security.TokenGenerator;
 import com.serguzeo.StartSpring.services.I.IAuthService;
 import com.serguzeo.StartSpring.services.I.IRoleService;
@@ -30,7 +31,7 @@ import java.util.Map;
 public class AuthServiceImpl implements IAuthService {
 
     private final AuthenticationManager authenticationManager;
-    private final IUserService userService;
+    private final IUserRepository userRepository;
     private final IRoleService roleService;
     private final PasswordEncoder passwordEncoder;
     private final TokenGenerator tokenGenerator;
@@ -54,10 +55,10 @@ public class AuthServiceImpl implements IAuthService {
 
     @Override
     public ResponseEntity<Map<String, String>> register(RegisterDto registerDto) {
-        if (userService.existsByUsername(registerDto.getUsername())) {
+        if (userRepository.existsByUsername(registerDto.getUsername())) {
             return new ResponseEntity<>(Collections.singletonMap("response", "Username is taken!"), HttpStatus.BAD_REQUEST);
         }
-        if (userService.existsByEmail(registerDto.getEmail())) {
+        if (userRepository.existsByEmail(registerDto.getEmail())) {
             return new ResponseEntity<>(Collections.singletonMap("response", "Email is already in use!"), HttpStatus.BAD_REQUEST);
         }
 
@@ -72,7 +73,7 @@ public class AuthServiceImpl implements IAuthService {
         Role role = roleService.findByName("USER").get();
         user.setRoles(Collections.singletonList(role));
 
-        userService.save(user);
+        userRepository.save(user);
 
         return new ResponseEntity<>(Collections.singletonMap("response", "User registered successfully!"), HttpStatus.CREATED);
     }
