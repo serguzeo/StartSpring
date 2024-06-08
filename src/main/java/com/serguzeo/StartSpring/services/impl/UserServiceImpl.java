@@ -24,11 +24,6 @@ public class UserServiceImpl implements IUserService {
     IUserRepository repository;
 
     @Override
-    public UserEntity save(UserEntity user) {
-        return repository.save(user);
-    }
-
-    @Override
     public ResponseEntity<UserDto> findByUuid(UUID uuid) {
         Optional<UserEntity> user = repository.findByUuid(uuid);
 
@@ -38,35 +33,5 @@ public class UserServiceImpl implements IUserService {
         } else {
             throw new ResourceNotFoundException("No such user found");
         }
-    }
-
-    @Override
-    public Optional<UserEntity> findByUsername(String username) {
-        return repository.findByUsername(username);
-    }
-
-    @Override
-    public Optional<UserEntity> findByEmail(String email) {
-        return repository.findByEmail(email);
-    }
-
-    @Override
-    public Optional<UserEntity> findByUsernameOrEmail(String username, String email) {
-        return repository.findByUsernameOrEmail(username, email);
-    }
-
-    @Override
-    public Boolean existsByEmail(String email) {
-        return repository.existsByEmail(email);
-    }
-
-    @Override
-    public Boolean existsByUsername(String username) {
-        return repository.existsByUsername(username);
-    }
-
-    @Override
-    public Boolean existsByUsernameOrEmail(String username, String email) {
-        return repository.existsByUsernameOrEmail(username, email);
     }
 }
