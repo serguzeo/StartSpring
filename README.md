@@ -23,27 +23,20 @@ StartSpring is a Java Spring application built on the latest Spring Boot 3.3.0 f
 
 1. Update the `application.yml` file in the `src/main/resources` directory with your database configuration and other necessary settings:
 
-  datasource:
+```datasource:
     url: jdbc:{CONNECTOR}://{ADDRESS}:{PORT}/{DATABASE_NAME}
     username: {USERNAME}
     password: {PASSWORD}
     driver-class-name: {DRIVER}
+```
 
 2. Update the `SecurityConstants` using your own JWT_SECRET:
-
+```
     public static final long JWT_EXPIRATION_TIME = 86400;
     public static final String JWT_SECRET = {SECRET};
+```
 
-
-### Build and run the application
-
-1. Build the project using Maven:
-
-mvn clean install
-
-2. Run the application:
-
-mvn spring-boot:run
+### Build and run the application using IDEA
 
 The application will start on `http://localhost:8080`.
 
